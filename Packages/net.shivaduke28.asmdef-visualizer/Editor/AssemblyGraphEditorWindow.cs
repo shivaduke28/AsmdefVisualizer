@@ -20,7 +20,6 @@ namespace AsmdefVisualizer.Editor
         {
             var graphView = new AssemblyGraphView();
             var assemblies = CompilationPipeline.GetAssemblies();
-            // var assemblies = CompilationPipeline.GetAssemblies().Where(a => (a.flags & AssemblyFlags.EditorAssembly) != AssemblyFlags.EditorAssembly);
             var sorted = AssemblySorter.Sort(assemblies);
             graphView.AddAssemblies(sorted);
 
@@ -32,6 +31,14 @@ namespace AsmdefVisualizer.Editor
             var scroll = new ScrollView();
             scroll.StretchToParentSize();
             box.Add(scroll);
+
+            var editorToggle = new Toggle("Editor Assemblies")
+            {
+                value = true
+            };
+            editorToggle.RegisterValueChangedCallback(x => graphView.SetEditorAssembliesVisible(x.newValue));
+            scroll.Add(editorToggle);
+
             foreach (var assembly in assemblies.OrderBy(a => a.name))
             {
                 var toggle = new Toggle(assembly.name)

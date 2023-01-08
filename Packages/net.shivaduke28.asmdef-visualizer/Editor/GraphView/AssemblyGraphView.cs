@@ -53,6 +53,16 @@ namespace AsmdefVisualizer.Editor.GraphView
             return ports.ToList();
         }
 
+        public void SetEditorAssembliesVisible(bool visible)
+        {
+            foreach (var node in nodeMap.Values)
+            {
+                var isEditor = (node.Assembly.flags & AssemblyFlags.EditorAssembly) == AssemblyFlags.EditorAssembly;
+                if (!isEditor) continue;
+                node.Visible = visible;
+            }
+        }
+
         public void SetVisible(string name, bool visible)
         {
             if (nodeMap.TryGetValue(name, out var node))
