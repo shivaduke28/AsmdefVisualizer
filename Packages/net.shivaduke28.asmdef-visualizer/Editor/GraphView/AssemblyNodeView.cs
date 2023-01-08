@@ -3,13 +3,13 @@ using UnityEditor.Experimental.GraphView;
 
 namespace AsmdefVisualizer.Editor.GraphView
 {
-    public sealed class AssemblyNode : Node
+    public sealed class AssemblyNodeView : Node
     {
         public Port InputPort { get; }
         public Port OutputPort { get; }
         public Assembly Assembly { get; }
 
-        public AssemblyNode(Assembly assembly)
+        public AssemblyNodeView(Assembly assembly)
         {
             Assembly = assembly;
             title = assembly.name;
@@ -22,6 +22,19 @@ namespace AsmdefVisualizer.Editor.GraphView
 
             InputPort = inputPort;
             OutputPort = outputPort;
+        }
+
+        public void SetVisibility(bool isVisible)
+        {
+            visible = isVisible;
+            foreach (var edge in InputPort.connections)
+            {
+                edge.visible = edge.output.node.visible & isVisible;
+            }
+            foreach (var edge in OutputPort.connections)
+            {
+                edge.visible = edge.input.node.visible & isVisible;
+            }
         }
 
         public bool Visible

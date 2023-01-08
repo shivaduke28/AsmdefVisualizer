@@ -18,10 +18,10 @@ namespace AsmdefVisualizer.Editor
 
         void OnEnable()
         {
-            var graphView = new AssemblyGraphView();
             var assemblies = CompilationPipeline.GetAssemblies();
-            var sorted = AssemblySorter.Sort(assemblies);
-            graphView.AddAssemblies(sorted);
+            var assemblyGraph = new AssemblyGraph(assemblies);
+            var graphView = new AssemblyGraphView(assemblyGraph);
+            graphView.InitializeNodes();
 
             rootVisualElement.Add(graphView);
             var box = new Box
@@ -32,11 +32,19 @@ namespace AsmdefVisualizer.Editor
             scroll.StretchToParentSize();
             box.Add(scroll);
 
+            var resetButton = new Button
+            {
+                text = "Reset"
+            };
+            resetButton.clicked += graphView.InitializeNodes;
+            scroll.Add(resetButton);
+
             var editorToggle = new Toggle("Editor Assemblies")
             {
                 value = true
             };
-            editorToggle.RegisterValueChangedCallback(x => graphView.SetEditorAssembliesVisible(x.newValue));
+
+            editorToggle.RegisterValueChangedCallback(x => assemblyGraph.SetEditorAssembliesVisible(x.newValue));
             scroll.Add(editorToggle);
 
             foreach (var assembly in assemblies.OrderBy(a => a.name))
@@ -45,7 +53,13 @@ namespace AsmdefVisualizer.Editor
                 {
                     value = true
                 };
-                toggle.RegisterValueChangedCallback(x => graphView.SetVisible(assembly.name, x.newValue));
+                toggle.RegisterValueChangedCallback(x =>
+                {
+                    if (assemblyGraph.TryGetNode(assembly.name, out var node))
+                    {
+                        node.Visible = x.newValue;
+                    }
+                });
                 scroll.Add(toggle);
             }
             rootVisualElement.Add(box);

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEditor.Compilation;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -8,11 +9,13 @@ namespace AsmdefVisualizer.Editor.GraphView
 {
     public sealed class AssemblyGraphView : UnityEditor.Experimental.GraphView.GraphView
     {
-        readonly Dictionary<string, AssemblyNode> nodeMap = new();
+        readonly AssemblyGraph assemblyGraph;
+        readonly Dictionary<string, AssemblyNodeView> nodeMap = new();
 
         // https://technote.qualiarts.jp/article/10#graphview%E3%81%AB%E3%82%88%E3%82%8B%E5%AE%9F%E8%A3%85%E3%81%AE%E6%89%8B%E5%BC%95%E3%81%8D
-        public AssemblyGraphView()
+        public AssemblyGraphView(AssemblyGraph assemblyGraph)
         {
+            this.assemblyGraph = assemblyGraph;
             this.StretchToParentSize();
             this.AddManipulator(new ContentDragger());
             this.AddManipulator(new SelectionDragger());
@@ -22,18 +25,43 @@ namespace AsmdefVisualizer.Editor.GraphView
             Insert(0, new GridBackground());
         }
 
-        public void AddAssemblies(List<List<Assembly>> sortedAssemblies)
+        public void InitializeNodes()
         {
-            for (var i = 0; i < sortedAssemblies.Count; i++)
+            var nodeViews = nodeMap.Values.ToArray();
+            foreach (var nodeView in nodeViews)
             {
-                var assemblies = sortedAssemblies[i];
-                for (var j = 0; j < assemblies.Count; j++)
+                var inputs = nodeView.InputPort.connections.ToArray();
+                foreach (var input in inputs)
                 {
-                    var assembly = assemblies[j];
-                    var node = new AssemblyNode(assembly);
-                    node.SetPosition(new Rect(new Vector2(400f * i, 100f * j), new Vector2(0, 0)));
-                    AddElement(node);
-                    nodeMap.Add(node.Assembly.name, node);
+                    RemoveElement(input);
+                }
+                var outputs = nodeView.OutputPort.connections.ToArray();
+                foreach (var output in outputs)
+                {
+                    RemoveElement(output);
+                }
+                if (assemblyGraph.TryGetNode(nodeView.Assembly.name, out var node))
+                {
+                    node.RemoveHandler(nodeView.SetVisibility);
+                }
+                RemoveElement(nodeView);
+            }
+            nodeMap.Clear();
+
+            var visibleNodes = assemblyGraph.Nodes.Where(node => node.Visible);
+            var sortedNodesList = AssemblySorter.Sort(visibleNodes);
+            for (var i = 0; i < sortedNodesList.Count; i++)
+            {
+                var sortedNodes = sortedNodesList[i];
+                for (var j = 0; j < sortedNodes.Count; j++)
+                {
+                    var node = sortedNodes[j];
+                    var nodeView = new AssemblyNodeView(node.Assembly);
+                    // todo: NodeViewでAddHandlerする
+                    node.AddHandler(nodeView.SetVisibility);
+                    nodeView.SetPosition(new Rect(new Vector2(400f * i, 100f * j), new Vector2(0, 0)));
+                    AddElement(nodeView);
+                    nodeMap.Add(nodeView.Assembly.name, nodeView);
                 }
             }
 
@@ -41,9 +69,11 @@ namespace AsmdefVisualizer.Editor.GraphView
             {
                 foreach (var reference in node.Assembly.assemblyReferences)
                 {
-                    var target = nodeMap[reference.name];
-                    var edge = node.InputPort.ConnectTo(target.OutputPort);
-                    AddElement(edge);
+                    if (nodeMap.TryGetValue(reference.name, out var target))
+                    {
+                        var edge = node.InputPort.ConnectTo(target.OutputPort);
+                        AddElement(edge);
+                    }
                 }
             }
         }
@@ -51,24 +81,6 @@ namespace AsmdefVisualizer.Editor.GraphView
         public override List<Port> GetCompatiblePorts(Port startAnchor, NodeAdapter nodeAdapter)
         {
             return ports.ToList();
-        }
-
-        public void SetEditorAssembliesVisible(bool visible)
-        {
-            foreach (var node in nodeMap.Values)
-            {
-                var isEditor = (node.Assembly.flags & AssemblyFlags.EditorAssembly) == AssemblyFlags.EditorAssembly;
-                if (!isEditor) continue;
-                node.Visible = visible;
-            }
-        }
-
-        public void SetVisible(string name, bool visible)
-        {
-            if (nodeMap.TryGetValue(name, out var node))
-            {
-                node.Visible = visible;
-            }
         }
     }
 }

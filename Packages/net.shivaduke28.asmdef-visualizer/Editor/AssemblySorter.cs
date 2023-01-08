@@ -1,20 +1,21 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using UnityEditor.Compilation;
 using UnityEngine;
 
 namespace AsmdefVisualizer.Editor
 {
     public static class AssemblySorter
     {
-        public static List<List<Assembly>> Sort(IEnumerable<Assembly> assemblies)
+        public static List<List<AssemblyNode>> Sort(IEnumerable<AssemblyNode> assemblies)
         {
-            var result = new List<List<Assembly>>();
-            var nodes = new List<Assembly>(assemblies);
+            var result = new List<List<AssemblyNode>>();
+            var nodes = new List<AssemblyNode>(assemblies);
 
             while (nodes.Count > 0)
             {
-                var roots = nodes.Where(assembly => assembly.assemblyReferences.All(a => !nodes.Contains(a))).OrderBy(a => a.name).ToList();
+                var roots = nodes
+                    .Where(node => node.Assembly.assemblyReferences.All(a => nodes.All(n => n.Assembly != a)))
+                    .OrderBy(a => a.Assembly.name).ToList();
                 if (roots.Count == 0)
                 {
                     Debug.Log("root nodes are not found.");
