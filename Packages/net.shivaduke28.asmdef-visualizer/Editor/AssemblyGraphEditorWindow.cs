@@ -47,8 +47,11 @@ namespace AsmdefVisualizer.Editor
             editorToggle.RegisterValueChangedCallback(x => assemblyGraph.SetEditorAssembliesVisible(x.newValue));
             scroll.Add(editorToggle);
 
-            foreach (var assembly in assemblies.OrderBy(a => a.name))
+            var nodes = assemblyGraph.Nodes;
+
+            foreach (var node in nodes)
             {
+                var assembly = node.Assembly;
                 var toggle = new Toggle(assembly.name)
                 {
                     value = true
@@ -60,8 +63,10 @@ namespace AsmdefVisualizer.Editor
                         node.Visible = x.newValue;
                     }
                 });
+                node.AddHandler(x => toggle.value = x);
                 scroll.Add(toggle);
             }
+
             rootVisualElement.Add(box);
         }
     }
