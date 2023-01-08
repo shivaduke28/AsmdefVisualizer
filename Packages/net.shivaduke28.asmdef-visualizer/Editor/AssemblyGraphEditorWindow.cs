@@ -47,7 +47,7 @@ namespace AsmdefVisualizer.Editor
             editorToggle.RegisterValueChangedCallback(x => assemblyGraph.SetEditorAssembliesVisible(x.newValue));
             scroll.Add(editorToggle);
 
-            var nodes = assemblyGraph.Nodes;
+            var nodes = assemblyGraph.Nodes.OrderBy(node => node.Assembly.name).ToArray();
 
             foreach (var node in nodes)
             {
