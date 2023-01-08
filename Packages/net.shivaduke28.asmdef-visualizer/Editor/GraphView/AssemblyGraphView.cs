@@ -52,5 +52,13 @@ namespace AsmdefVisualizer.Editor.GraphView
         {
             return ports.ToList();
         }
+
+        public void SetVisible(string name, bool visible)
+        {
+            if (nodeMap.TryGetValue(name, out var node))
+            {
+                node.Visible = visible;
+            }
+        }
     }
 }
