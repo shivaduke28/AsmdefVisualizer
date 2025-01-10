@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using UnityEditor.Compilation;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -40,7 +39,7 @@ namespace AsmdefVisualizer.Editor.GraphView
                 {
                     RemoveElement(output);
                 }
-                if (assemblyGraph.TryGetNode(nodeView.Assembly.name, out var node))
+                if (assemblyGraph.TryGetNode(nodeView.Asmdef.name, out var node))
                 {
                     node.RemoveHandler(nodeView.SetVisibility);
                 }
@@ -56,20 +55,20 @@ namespace AsmdefVisualizer.Editor.GraphView
                 for (var j = 0; j < sortedNodes.Count; j++)
                 {
                     var node = sortedNodes[j];
-                    var nodeView = new AssemblyNodeView(node.Assembly);
+                    var nodeView = new AssemblyNodeView(node.Asmdef);
                     // todo: NodeViewでAddHandlerする
                     node.AddHandler(nodeView.SetVisibility);
                     nodeView.SetPosition(new Rect(new Vector2(400f * i, 100f * j), new Vector2(0, 0)));
                     AddElement(nodeView);
-                    nodeMap.Add(nodeView.Assembly.name, nodeView);
+                    nodeMap.Add(nodeView.Asmdef.name, nodeView);
                 }
             }
 
             foreach (var node in nodeMap.Values)
             {
-                foreach (var reference in node.Assembly.assemblyReferences)
+                foreach (var reference in node.Asmdef.references)
                 {
-                    if (nodeMap.TryGetValue(reference.name, out var target))
+                    if (nodeMap.TryGetValue(reference, out var target))
                     {
                         var edge = node.InputPort.ConnectTo(target.OutputPort);
                         AddElement(edge);

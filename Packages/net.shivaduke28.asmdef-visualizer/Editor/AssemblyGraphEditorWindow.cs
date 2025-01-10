@@ -1,7 +1,10 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using AsmdefVisualizer.Editor.GraphView;
 using UnityEditor;
-using UnityEditor.Compilation;
+using UnityEditorInternal;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace AsmdefVisualizer.Editor
@@ -18,8 +21,8 @@ namespace AsmdefVisualizer.Editor
 
         void OnEnable()
         {
-            var assemblies = CompilationPipeline.GetAssemblies();
-            var assemblyGraph = new AssemblyGraph(assemblies);
+            var asmdefSet = GetAsmdefs();
+            var assemblyGraph = new AssemblyGraph(asmdefSet.Values.Select(x => x.asmdef));
             var graphView = new AssemblyGraphView(assemblyGraph);
             graphView.InitializeNodes();
 
@@ -47,11 +50,11 @@ namespace AsmdefVisualizer.Editor
             editorToggle.RegisterValueChangedCallback(x => assemblyGraph.SetEditorAssembliesVisible(x.newValue));
             scroll.Add(editorToggle);
 
-            var nodes = assemblyGraph.Nodes.OrderBy(node => node.Assembly.name).ToArray();
+            var nodes = assemblyGraph.Nodes.OrderBy(node => node.Asmdef.name).ToArray();
 
             foreach (var node in nodes)
             {
-                var assembly = node.Assembly;
+                var assembly = node.Asmdef;
                 var toggle = new Toggle(assembly.name)
                 {
                     value = true
@@ -68,6 +71,27 @@ namespace AsmdefVisualizer.Editor
             }
 
             rootVisualElement.Add(box);
+        }
+
+        static Dictionary<string, (Asmdef asmdef, string path)> GetAsmdefs()
+        {
+            var guids = AssetDatabase.FindAssets("t:AssemblyDefinitionAsset", new[] { "Assets", "Packages" });
+            var assemblyDefinitions = new Dictionary<string, (Asmdef, string)>();
+            foreach (var guid in guids)
+            {
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+                var asset = AssetDatabase.LoadAssetAtPath<AssemblyDefinitionAsset>(path);
+                var asmdef = JsonUtility.FromJson<Asmdef>(asset.text);
+                if (asmdef != null)
+                {
+                    // nullの場合があるのでから配列で初期化する
+                    asmdef.references ??= Array.Empty<string>();
+                    assemblyDefinitions[asmdef.name] = (asmdef, path);
+                    Debug.Log(asmdef.name + ", " + path);
+                }
+            }
+
+            return assemblyDefinitions;
         }
     }
 }

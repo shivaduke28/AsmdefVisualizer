@@ -1,5 +1,4 @@
-﻿using UnityEditor.Compilation;
-using UnityEditor.Experimental.GraphView;
+﻿using UnityEditor.Experimental.GraphView;
 
 namespace AsmdefVisualizer.Editor.GraphView
 {
@@ -7,12 +6,12 @@ namespace AsmdefVisualizer.Editor.GraphView
     {
         public Port InputPort { get; }
         public Port OutputPort { get; }
-        public Assembly Assembly { get; }
+        public Asmdef Asmdef { get; }
 
-        public AssemblyNodeView(Assembly assembly)
+        public AssemblyNodeView(Asmdef asmdef)
         {
-            Assembly = assembly;
-            title = assembly.name;
+            Asmdef = asmdef;
+            title = asmdef.name;
             var inputPort = Port.Create<Edge>(Orientation.Horizontal, Direction.Input, Port.Capacity.Multi, typeof(Port));
             inputPort.portName = "Ref To";
             inputContainer.Add(inputPort);

@@ -5,18 +5,18 @@ namespace AsmdefVisualizer.Editor
 {
     public sealed class AssemblyGraph
     {
-        readonly Dictionary<string, AssemblyNode> nodes = new();
-        public IEnumerable<AssemblyNode> Nodes => nodes.Values;
+        readonly Dictionary<string, AsmdefNode> nodes = new();
+        public IEnumerable<AsmdefNode> Nodes => nodes.Values;
 
-        public AssemblyGraph(IEnumerable<Assembly> assemblies)
+        public AssemblyGraph(IEnumerable<Asmdef> assemblies)
         {
             foreach (var assembly in assemblies)
             {
-                nodes[assembly.name] = new AssemblyNode(assembly);
+                nodes[assembly.name] = new AsmdefNode(assembly);
             }
         }
 
-        public bool TryGetNode(string name, out AssemblyNode node)
+        public bool TryGetNode(string name, out AsmdefNode node)
         {
             return nodes.TryGetValue(name, out node);
         }
@@ -25,8 +25,7 @@ namespace AsmdefVisualizer.Editor
         {
             foreach (var node in nodes.Values)
             {
-                var isEditor = (node.Assembly.flags & AssemblyFlags.EditorAssembly) == AssemblyFlags.EditorAssembly;
-                if (!isEditor) continue;
+                if (!node.Asmdef.IsEditor()) continue;
                 node.Visible = visible;
             }
         }

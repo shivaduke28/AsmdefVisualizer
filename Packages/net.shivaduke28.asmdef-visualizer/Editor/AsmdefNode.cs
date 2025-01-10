@@ -1,11 +1,10 @@
 ﻿using System;
-using UnityEditor.Compilation;
 
 namespace AsmdefVisualizer.Editor
 {
-    public sealed class AssemblyNode
+    public sealed class AsmdefNode
     {
-        public Assembly Assembly { get; }
+        public Asmdef Asmdef { get; }
 
         bool visible;
 
@@ -23,9 +22,9 @@ namespace AsmdefVisualizer.Editor
 
         OnVisibleChange onVisibleChange;
 
-        public AssemblyNode(Assembly assembly)
+        public AsmdefNode(Asmdef asmdef)
         {
-            Assembly = assembly;
+            Asmdef = asmdef;
             Visible = true;
         }
 

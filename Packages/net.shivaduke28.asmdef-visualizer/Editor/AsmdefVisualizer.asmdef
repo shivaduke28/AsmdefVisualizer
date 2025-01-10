@@ -1,6 +1,6 @@
 {
-    "name": "AsmdefVisualizer.Editor",
-    "rootNamespace": "AsmdefVisualizer.Editor",
+    "name": "AsmdefVisualizer",
+    "rootNamespace": "AsmdefVisualizer",
     "references": [],
     "includePlatforms": [
         "Editor"
