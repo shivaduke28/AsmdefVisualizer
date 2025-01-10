@@ -39,12 +39,12 @@ namespace AsmdefVisualizer.Editor
             scroll.StretchToParentSize();
             box.Add(scroll);
 
-            var resetButton = new Button
+            var refreshButton = new Button
             {
-                text = "Reset"
+                text = "Refresh"
             };
-            resetButton.clicked += graphView.InitializeNodes;
-            scroll.Add(resetButton);
+            refreshButton.clicked += graphView.InitializeNodes;
+            scroll.Add(refreshButton);
 
             var editorToggle = new Toggle("Editor Assemblies")
             {
