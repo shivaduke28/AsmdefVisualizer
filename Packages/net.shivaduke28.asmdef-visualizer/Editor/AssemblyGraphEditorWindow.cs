@@ -24,6 +24,10 @@ namespace AsmdefVisualizer.Editor
             var asmdefSet = GetAsmdefs();
             var assemblyGraph = new AssemblyGraph(asmdefSet.Values.Select(x => x.asmdef));
             var graphView = new AssemblyGraphView(assemblyGraph);
+
+            // hide editor assemblies by default
+            assemblyGraph.SetEditorAssembliesVisible(false);
+
             graphView.InitializeNodes();
 
             rootVisualElement.Add(graphView);
