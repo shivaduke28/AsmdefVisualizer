@@ -20,7 +20,7 @@ namespace AsmdefVisualizer.Editor.GraphView
             this.AddManipulator(new SelectionDragger());
             this.AddManipulator(new RectangleSelector());
 
-            SetupZoom(ContentZoomer.DefaultMinScale, ContentZoomer.DefaultMaxScale);
+            SetupZoom(0.1f, 2f);
             Insert(0, new GridBackground());
         }
 

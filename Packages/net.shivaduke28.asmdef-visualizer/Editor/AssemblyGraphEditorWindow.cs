@@ -44,7 +44,7 @@ namespace AsmdefVisualizer.Editor
 
             var editorToggle = new Toggle("Editor Assemblies")
             {
-                value = true
+                value = false
             };
 
             editorToggle.RegisterValueChangedCallback(x => assemblyGraph.SetEditorAssembliesVisible(x.newValue));
