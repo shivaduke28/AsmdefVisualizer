@@ -90,8 +90,8 @@ namespace AsmdefVisualizer.Editor
                 {
                     // nullの場合があるのでから配列で初期化する
                     asmdef.references ??= Array.Empty<string>();
+                    asmdef.includePlatforms ??= Array.Empty<string>();
                     assemblyDefinitions[asmdef.name] = (asmdef, path);
-                    Debug.Log(asmdef.name + ", " + path);
                 }
             }
 

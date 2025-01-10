@@ -22,7 +22,7 @@ namespace AsmdefVisualizer.Editor
 
         public bool IsEditor()
         {
-            return includePlatforms.Contains("Editor");
+            return includePlatforms?.Contains("Editor") ?? false;
         }
     }
 }
