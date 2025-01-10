@@ -39,20 +39,64 @@ namespace AsmdefVisualizer.Editor
             scroll.StretchToParentSize();
             box.Add(scroll);
 
-            var refreshButton = new Button
+
+            var includeFilter = new TextField("Include (\",\"-separated)")
             {
-                text = "Refresh"
+                value = ""
             };
-            refreshButton.clicked += graphView.InitializeNodes;
-            scroll.Add(refreshButton);
+            scroll.Add(includeFilter);
+
+            var excludeFilter = new TextField("Exclude (\",\"-separated)")
+            {
+                value = ""
+            };
+            scroll.Add(excludeFilter);
 
             var editorToggle = new Toggle("Editor Assemblies")
             {
                 value = false
             };
-
-            editorToggle.RegisterValueChangedCallback(x => assemblyGraph.SetEditorAssembliesVisible(x.newValue));
             scroll.Add(editorToggle);
+
+            var refreshButton = new Button
+            {
+                text = "Refresh"
+            };
+            refreshButton.clicked += () =>
+            {
+                var include = !string.IsNullOrEmpty(includeFilter.value);
+                var includeFilterSet = includeFilter.value.Split(",").Select(x => x.Trim()).ToArray();
+                var exclude = !string.IsNullOrEmpty(excludeFilter.value);
+                var excludeFilterSet = excludeFilter.value.Split(",").Select(x => x.Trim()).ToArray();
+                foreach (var node in assemblyGraph.Nodes)
+                {
+                    node.Visible = true;
+                    if (include)
+                    {
+                        if (!includeFilterSet.Any(f => node.Asmdef.name.Contains(f)))
+                        {
+                            node.Visible = false;
+                        }
+                    }
+                    if (exclude)
+                    {
+                        if (excludeFilterSet.Any(f => node.Asmdef.name.Contains(f)))
+                        {
+                            node.Visible = false;
+                        }
+                    }
+                    if (!editorToggle.value)
+                    {
+                        if (node.Asmdef.IsEditor())
+                        {
+                            node.Visible = false;
+                        }
+                    }
+                }
+                graphView.InitializeNodes();
+            };
+            scroll.Add(refreshButton);
+
 
             var nodes = assemblyGraph.Nodes.OrderBy(node => node.Asmdef.name).ToArray();
 
