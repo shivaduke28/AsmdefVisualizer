@@ -65,11 +65,12 @@ namespace AsmdefVisualizer.Editor
                 };
                 toggle.RegisterValueChangedCallback(x =>
                 {
-                    if (assemblyGraph.TryGetNode(assembly.name, out var node))
+                    if (assemblyGraph.TryGetNode(assembly.name, out var n))
                     {
-                        node.Visible = x.newValue;
+                        n.Visible = x.newValue;
                     }
                 });
+                toggle.value = node.Visible;
                 node.AddHandler(x => toggle.value = x);
                 scroll.Add(toggle);
             }
