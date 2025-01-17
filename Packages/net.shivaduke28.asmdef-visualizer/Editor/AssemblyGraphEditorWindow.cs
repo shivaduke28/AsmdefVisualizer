@@ -19,6 +19,9 @@ namespace AsmdefVisualizer.Editor
 
         bool visible;
 
+        const string IncludeFilterKey = "AsmdefVisualizer.IncludeFilter";
+        const string ExcludeFilterKey = "AsmdefVisualizer.ExcludeFilter";
+
         void OnEnable()
         {
             var asmdefSet = GetAsmdefs();
@@ -42,13 +45,13 @@ namespace AsmdefVisualizer.Editor
 
             var includeFilter = new TextField("Include (\",\"-separated)")
             {
-                value = ""
+                value = PlayerPrefs.GetString(IncludeFilterKey, "")
             };
             scroll.Add(includeFilter);
 
             var excludeFilter = new TextField("Exclude (\",\"-separated)")
             {
-                value = ""
+                value = PlayerPrefs.GetString(ExcludeFilterKey, "")
             };
             scroll.Add(excludeFilter);
 
@@ -94,6 +97,9 @@ namespace AsmdefVisualizer.Editor
                     }
                 }
                 graphView.InitializeNodes();
+                PlayerPrefs.SetString(IncludeFilterKey, includeFilter.value);
+                PlayerPrefs.SetString(ExcludeFilterKey, excludeFilter.value);
+                PlayerPrefs.Save();
             };
             scroll.Add(refreshButton);
 
